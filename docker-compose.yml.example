@@ -1,0 +1,25 @@
+version: '3'
+services:
+    nginx:
+        build:
+            context: ./
+            dockerfile: dockerfiles/nginx/nginx.docker
+        volumes:
+            - './:/var/www'
+        restart: always
+        ports:
+            - '80:80'
+        links:
+            - php
+    php:
+        build:
+            context: ./
+            dockerfile: dockerfiles/php/php.docker
+        volumes:
+            - './:/var/www'
+        restart: always
+        links:
+            - redis
+        environment:
+            - "TZ=America/Guatemala"
+            - CONTAINER_ROLE=app

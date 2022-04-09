@@ -1,0 +1,24 @@
+FROM php:8.0-fpm
+
+RUN echo 'alias migrate="php artisan migrate"' >> ~/.bashrc
+RUN echo 'alias rollback="php artisan migrate:rollback"' >> ~/.bashrc
+RUN echo 'alias seed="php artisan db:seed"' >> ~/.bashrc
+RUN echo 'alias seedgod="php artisan db:seed --class=GodSeeder"' >> ~/.bashrc
+RUN echo 'alias seedini="php artisan db:seed --class=InitialSeeder"' >> ~/.bashrc
+RUN echo 'alias cda="composer dump-autoload"' >> ~/.bashrc
+
+RUN apt-get update && apt-get install -y mariadb-client libxml2-dev zlib1g-dev libpng-dev libzip-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    #&& docker-php-ext-configure opcache --enable-opcache \
+    #&& docker-php-ext-install opcache
+    && docker-php-ext-install pdo_mysql zip gd soap pcntl
+
+ADD ./dockerfiles/php/limits.conf /usr/local/etc/php-fpm.d/limits.conf
+#ADD ./dockerfiles/php/opcache.conf /usr/local/etc/php-fpm.d/opcache.conf
+
+WORKDIR /var/www
+
+COPY dockerfiles/php/php.sh /opt/bin/entrypoint.sh
+RUN chmod +x /opt/bin/entrypoint.sh
+
+CMD ["/opt/bin/entrypoint.sh"]
